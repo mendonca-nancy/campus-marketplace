@@ -1,15 +1,15 @@
 import mysql from 'mysql2/promise';
 
 const pool=await mysql.createPool({
-    host:'localhost',
-    user:'root',
-    password:'968656',
-    database:'campus_marketplace'
-
+    host:process.env.DB_HOST ,
+    user:process.env.DB_USER,
+    password:process.env.DB_PASSWORD,
+    database:process.env.DB_NAME
 });
+
+export { pool };
  
 async function get_listing_by_id(id){
-    
     try{
         const [listing]=await pool.query("select * from listings where listing_id=?",[id]);
         return listing;
@@ -29,6 +29,7 @@ async function get_user_by_id(id){
         throw error;
     }
 }
+
 async function get_all_listings(){
     try{
         const listings=await pool.query("select * from listings");
@@ -47,6 +48,7 @@ async function create_user(user_name,password,contact_no){
 async function create_listing(title,description,price,category,seller_id){
     await pool.query("insert into listings(title,description,price,category,seller_id) values(?,?,?,?,?);",[title,description,price,category,seller_id]);
 }
+
 async function update_user(user_id,user_name,password,contact_no){
     const updates = [];
     const values = [];
@@ -70,7 +72,6 @@ async function update_user(user_id,user_name,password,contact_no){
     const [result] = await pool.query(sql,values);
     return result.affectedRows > 0; // Returns true if a row was updated, false otherwise
 }
-
 
 async function update_listing(listing_id,title,description,price,category){
     const updates = [];

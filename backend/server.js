@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 import {
     get_listing_by_id,
     get_user_by_id,
@@ -7,13 +8,15 @@ import {
     create_listing,
     update_user,
     update_listing,
-    delete_listing} from './db.js';//executes db function 
+    delete_listing} from './src/config/db.js';//executes db function 
 const app=express();
 const PORT= process.env.PORT || 8000;
 app.use(express.json());
 app.get('/',(req,res)=>{
     res.send("<h1>hello</h1>");
 });
+
+//get listing by id, get user by id
 app.get('/listings/:id',async (req,res)=>{
     const listing_id=parseInt(req.params.id);
     try{
@@ -28,6 +31,7 @@ app.get('/listings/:id',async (req,res)=>{
     }
 
 });
+//get user by id
 app.get('/users/:id',async (req,res)=>{
     const user_id=parseInt(req.params.id);
     try {
@@ -40,6 +44,7 @@ app.get('/users/:id',async (req,res)=>{
         res.status(500).json({ message: "Error fetching user by id", error: error.message });
     }
 });
+//get all listings
 app.get('/listings',async (req,res)=>{
     try{
         const [listings]=await get_all_listings();
@@ -49,7 +54,7 @@ app.get('/listings',async (req,res)=>{
         res.status(500).json({ message: "Error fetching listings", error: error.message });
     }
 });
-
+//create listing
 app.post('/listings',async (req,res)=>{
     const {listing_title,listing_description,listing_price,listing_category,seller_id}=req.body;
     if(!listing_title){
@@ -72,10 +77,11 @@ app.post('/listings',async (req,res)=>{
         res.status(500).json({message:"error adding listing",error:error.message});
     }
 });
-
+//create ussers
 app.post('/users',async (req,res)=>{
     console.log("inside user");
     const {user_name,password,contact_no}=req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
    if(!user_name){//cleaner code instead of !req.body.user_name
         return res.status(400).json({message:"user_name is required"});
         }
@@ -91,13 +97,14 @@ app.post('/users',async (req,res)=>{
     }
 
     try{
-        await create_user(user_name,password,contact_no);
+        await create_user(user_name,hashedPassword,contact_no);
         res.status(201).json({ message: "User created successfully" });
     }
     catch(error){
         res.status(500).json({message:"error adding user",error:error.message});
     }
 });
+//update user
 app.put('/users/:id',async (req,res)=>{
     const user_id=parseInt(req.params.id);
     if (!req.body) {
@@ -120,7 +127,7 @@ app.put('/users/:id',async (req,res)=>{
         return res.status(500).json({message:"error updating user",error:error.message});
     }
 });
-
+//update listing
 app.put('/listings/:id',async (req,res)=>{
     if (!req.body) {
     return res.status(400).json({ message: "Request body is required" });
@@ -143,7 +150,7 @@ app.put('/listings/:id',async (req,res)=>{
         return res.status(500).json({message:"error updating listing",error:error.message});
     }
 });
-
+//delete listing
 app.delete('/listings/:id',async (req,res)=>{
     const listing_id=parseInt(req.params.id);
     try{
