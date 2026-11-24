@@ -1,4 +1,4 @@
-import { get_all_listings, get_listing_by_id, create_listing, update_listing, delete_listing } from "../config/db.js";
+import { get_all_listings, get_listing_by_id, create_listing, update_listing, delete_listing } from "../models/listingModels.js";
 //get all listings
 const getAllListing=async (req,res)=>{
     try{

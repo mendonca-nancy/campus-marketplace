@@ -1,3 +1,4 @@
+import {pool} from "../config/db.js";
 async function get_user_by_id(id){
     try{
         const [user]=await pool.query("select * from users where user_id=?",[id]);

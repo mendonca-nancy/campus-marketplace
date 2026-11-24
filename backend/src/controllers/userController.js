@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { get_user_by_id, create_user, update_user } from "../config/db.js";
+import { get_user_by_id, create_user, update_user } from "../models/userModels.js";
 const getUserById=async (req,res)=>{
     const user_id=parseInt(req.params.id);
     try {
@@ -53,7 +53,10 @@ const updateUser=async (req,res)=>{
         return res.status(400).json({message:"contact no should be a 10 digit number"});
     }
     try{
-        const hashedPassword = await bcrypt.hash(password, 10);
+        let hashedPassword;
+        if(password){
+            hashedPassword = await bcrypt.hash(password, 10); 
+        }
         if(await update_user(user_id,user_name,hashedPassword,contact_no)){
             res.status(200).json({message:"user updated successfully"});
         }

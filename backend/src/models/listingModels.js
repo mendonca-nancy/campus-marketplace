@@ -1,3 +1,4 @@
+import {pool} from "../config/db.js";
 async function get_all_listings(){
     try{
         const listings=await pool.query("select * from listings");
